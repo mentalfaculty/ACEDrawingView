@@ -142,8 +142,12 @@
 
 - (void)updateCacheImage:(BOOL)redraw
 {
-    // init a context
-    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 0.0);
+    
+    CGRect drawingRect = [self rectToDrawBackgroundImage:self.backgroundImage];
+    if (self.drawMode == ACEDrawingModeScale)
+        UIGraphicsBeginImageContextWithOptions(drawingRect.size, NO, 0.0);
+    else
+        UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 0.0);
     
     if (redraw) {
         // erase the previous image
@@ -156,6 +160,7 @@
                 [[self.backgroundImage copy] drawAtPoint:CGPointZero];
                 break;
             case ACEDrawingModeScale:
+                self.frame = CGRectMake((self.superview.frame.size.width-drawingRect.size.width)*0.5, (self.superview.frame.size.height-drawingRect.size.height)*0.5, drawingRect.size.width, drawingRect.size.height);
                 [[self.backgroundImage copy] drawInRect:self.bounds];
                 break;
         }
@@ -679,6 +684,27 @@
 }
 
 #pragma mark Image Utilities
+-(CGRect) rectToDrawBackgroundImage:(UIImage *)background
+{
+    if (background == nil)
+        return self.bounds;
+    
+    CGFloat widthFactor = self.bounds.size.width / background.size.width;
+    CGFloat heightFactor = self.bounds.size.height / background.size.height;
+    CGFloat scaleFactor = 0.0;
+    if (CGSizeEqualToSize(background.size, self.bounds.size) == NO) {
+        if (widthFactor < heightFactor)
+            scaleFactor = widthFactor;
+        else
+            scaleFactor = heightFactor;
+    }
+    
+    // init a context
+    CGFloat targetWidth = background.size.width*scaleFactor;
+    CGFloat targetHeight = background.size.height*scaleFactor;
+    CGRect drawingRect = CGRectMake(0,0,targetWidth, targetHeight);
+    return drawingRect;
+}
 
 - (UIImage*)scaleImage:(UIImage *)sourceImage proportionallyToWidth:(CGFloat)width
 {
