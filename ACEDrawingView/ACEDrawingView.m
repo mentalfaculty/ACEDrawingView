@@ -691,7 +691,7 @@
     
     CGFloat widthFactor = self.bounds.size.width / background.size.width;
     CGFloat heightFactor = self.bounds.size.height / background.size.height;
-    CGFloat scaleFactor = 0.0;
+    CGFloat scaleFactor = 1.0;
     if (CGSizeEqualToSize(background.size, self.bounds.size) == NO) {
         if (widthFactor < heightFactor)
             scaleFactor = widthFactor;
